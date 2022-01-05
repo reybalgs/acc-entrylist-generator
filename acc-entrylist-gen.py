@@ -34,7 +34,11 @@ def main(args):
 
 		for carIndex, carEntry in enumerate(leaderboard):
 			drivers = carEntry['car']['drivers']
-			newEntryListEntry = EntrylistEntry(drivers, carIndex)
+			driversList = []
+			for driverIndex, driver in enumerate(drivers):
+				newDriver = Driver(driver)
+				driversList.append(newDriver)
+			newEntryListEntry = EntrylistEntry(driversList, carIndex + 1)
 			newEntryList.entries.append(newEntryListEntry)
 
 		# Write file
