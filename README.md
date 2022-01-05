@@ -14,7 +14,7 @@ Simply run the Python script while supplying the path of the leaderboards/result
 ./acc-entrylist-gen.py <your_results_file>.json
 ```
 
-These results JSON files are always generated in your server's `results` directory if you use `"dumpLeaderboards": 1` option in your server's `settings.json` file, as shown [in this guide](https://www.acc-wiki.info/wiki/Server_Configuration#Result_Files).
+These results JSON files are always generated in your server's `results` directory if you use the  `"dumpLeaderboards": 1` option in your server's `settings.json` file, as shown [in this guide](https://www.acc-wiki.info/wiki/Server_Configuration#Result_Files).
 
 ### Reading an existing entrylist
 
@@ -22,7 +22,7 @@ You can also use an existing entrylist to process in the script. This is done us
 
 ### Reversing the grid order
 
-Reverse grids are a really popular option for many leagues. Why make it hard for yourself, the organizer? Reverse the resulting entrylist with the `-r` flag so you can get an instant 
+Reverse grids are a really popular option for many leagues. Why make it hard for yourself, the organizer? Reverse the resulting entrylist with the `-r` flag so you can get an instant reversed grid. **NOTE:** Currently this only works to reverse the entire grid.
 
 ### Shuffling the grid
 
