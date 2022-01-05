@@ -29,6 +29,8 @@ def main(args):
 	isInputEntrylist = False
 	# Flag to check if we're shuffling the resulting entrylist order
 	isShuffle = False
+	# Flag to check if we're reversing the grid order
+	isReverse = False
 
 	filePathArgIndex = 1
 
@@ -38,6 +40,8 @@ def main(args):
 		isInputEntrylist = True
 	if ("-s" in args):
 		isShuffle = True
+	if ("-r" in args):
+		isReverse = True
 
 	if len(sys.argv) > 2:
 		filePathArgIndex = len(sys.argv) - 1
@@ -56,11 +60,14 @@ def main(args):
 			for carIndex, carEntry in enumerate(leaderboard):
 				drivers = carEntry['car']['drivers']
 				driversList = []
-				for driver in enumerate(drivers):
+				for driverIndex, driver in enumerate(drivers):
 					newDriver = Driver(driver)
 					driversList.append(newDriver)
 				newEntryListEntry = EntrylistEntry(driversList, carIndex + 1)
 				newEntryList.entries.append(newEntryListEntry)
+
+		if (isReverse):
+			newEntryList.entries = list(reversed(newEntryList.entries))
 
 		if (isShuffle):
 			random.shuffle(newEntryList.entries)
