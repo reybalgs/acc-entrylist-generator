@@ -2,6 +2,7 @@
 
 import sys
 import jsonpickle
+import random
 from datetime import datetime
 
 class Driver:
@@ -19,27 +20,55 @@ class EntrylistEntry:
 		self.defaultGridPosition = gridPos
 
 class Entrylist:
-	def __init__(self):
-		self.entries = []
+	def __init__(self, initEntries=None):
+		self.entries = initEntries if initEntries else []
 		self.forceEntryList = 1
 
 def main(args):
+	# Flag for tracking if the input is an entrylist, for shuffling
+	isInputEntrylist = False
+	# Flag to check if we're shuffling the resulting entrylist order
+	isShuffle = False
+
+	filePathArgIndex = 1
+
 	if (len(args) == 1):
 		sys.exit("You need to provide a valid JSON file.")
-	with open(args[1], mode="r", encoding="utf-8") as input_json:
-		race_data = jsonpickle.decode(input_json.read())
-		leaderboard = race_data["sessionResult"]["leaderBoardLines"]
+	if ("-e" in args):
+		isInputEntrylist = True
+	if ("-s" in args):
+		isShuffle = True
 
-		newEntryList = Entrylist()
+	if len(sys.argv) > 2:
+		filePathArgIndex = len(sys.argv) - 1
 
-		for carIndex, carEntry in enumerate(leaderboard):
-			drivers = carEntry['car']['drivers']
-			driversList = []
-			for driverIndex, driver in enumerate(drivers):
-				newDriver = Driver(driver)
-				driversList.append(newDriver)
-			newEntryListEntry = EntrylistEntry(driversList, carIndex + 1)
-			newEntryList.entries.append(newEntryListEntry)
+	with open(args[filePathArgIndex], mode="r", encoding="utf-8") as inputJson:
+		if (isInputEntrylist):
+			newEntryList = Entrylist()
+			entrylistData = jsonpickle.decode(inputJson.read())
+			newEntryList.entries = entrylistData['entries']
+		else:
+			race_data = jsonpickle.decode(inputJson.read())
+			leaderboard = race_data["sessionResult"]["leaderBoardLines"]
+
+			newEntryList = Entrylist()
+
+			for carIndex, carEntry in enumerate(leaderboard):
+				drivers = carEntry['car']['drivers']
+				driversList = []
+				for driver in enumerate(drivers):
+					newDriver = Driver(driver)
+					driversList.append(newDriver)
+				newEntryListEntry = EntrylistEntry(driversList, carIndex + 1)
+				newEntryList.entries.append(newEntryListEntry)
+
+		if (isShuffle):
+			random.shuffle(newEntryList.entries)
+			for entryIndex, entry in enumerate(newEntryList.entries):
+				try:
+					entry['defaultGridPosition'] = entryIndex + 1
+				except:
+					entry.defaultGridPosition = entryIndex + 1
 
 		# Write file
 		filename = ("entrylist_" + datetime.now().strftime("%Y%m%d-%H%M%S") + 
@@ -49,7 +78,7 @@ def main(args):
 				make_refs=False, unpicklable=False))
 			entrylistFile.close()
 
-		input_json.close()
+		inputJson.close()
 		sys.exit("Operation finished. New entrylist JSON file: " + filename)
 
 
