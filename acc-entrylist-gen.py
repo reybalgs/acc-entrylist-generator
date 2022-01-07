@@ -1,93 +1,27 @@
 #!/bin/python3
 
 import sys
-import jsonpickle
-import random
-from datetime import datetime
 
-class Driver:
-	def __init__(self, details):
-		self.firstName = details['firstName']
-		self.lastName = details['lastName']
-		self.shortName = details['shortName']
-		self.playerID = details['playerId']
-
-class EntrylistEntry:
-	def __init__(self, drivers: Driver, gridPos):
-		self.drivers = drivers
-		self.forcedCarModel = -1
-		self.overrideDriverInfo = 0
-		self.defaultGridPosition = gridPos
-
-class Entrylist:
-	def __init__(self, initEntries=None):
-		self.entries = initEntries if initEntries else []
-		self.forceEntryList = 1
+from json_processor import JSONProcessor
+from csv_processor import CSVProcessor
 
 def main(args):
-	# Flag for tracking if the input is an entrylist, for shuffling
-	isInputEntrylist = False
-	# Flag to check if we're shuffling the resulting entrylist order
-	isShuffle = False
-	# Flag to check if we're reversing the grid order
-	isReverse = False
+	isInputEntrylist = ("-e" in args)
+	isShuffle = ("-s" in args)
+	isReverse = ("-r" in args)
+	isCsv = ("-c" in args)
 
-	filePathArgIndex = 1
-
-	if (len(args) == 1):
-		sys.exit("You need to provide a valid JSON file.")
-	if ("-e" in args):
-		isInputEntrylist = True
-	if ("-s" in args):
-		isShuffle = True
-	if ("-r" in args):
-		isReverse = True
-
-	if len(sys.argv) > 2:
+	if len(sys.argv) > 1:
 		filePathArgIndex = len(sys.argv) - 1
+	else:
+		sys.exit("You need to provide a valid JSON or CSV file.")
 
-	with open(args[filePathArgIndex], mode="r", encoding="utf-8") as inputJson:
-		if (isInputEntrylist):
-			newEntryList = Entrylist()
-			entrylistData = jsonpickle.decode(inputJson.read())
-			newEntryList.entries = entrylistData['entries']
-		else:
-			race_data = jsonpickle.decode(inputJson.read())
-			leaderboard = race_data["sessionResult"]["leaderBoardLines"]
-
-			newEntryList = Entrylist()
-
-			for carIndex, carEntry in enumerate(leaderboard):
-				drivers = carEntry['car']['drivers']
-				driversList = []
-				for driverIndex, driver in enumerate(drivers):
-					newDriver = Driver(driver)
-					driversList.append(newDriver)
-				newEntryListEntry = EntrylistEntry(driversList, carIndex + 1)
-				newEntryList.entries.append(newEntryListEntry)
-
-		if (isReverse):
-			newEntryList.entries = list(reversed(newEntryList.entries))
-
-		if (isShuffle):
-			random.shuffle(newEntryList.entries)
-			for entryIndex, entry in enumerate(newEntryList.entries):
-				try:
-					entry['defaultGridPosition'] = entryIndex + 1
-				except:
-					entry.defaultGridPosition = entryIndex + 1
-
-		# Write file
-		filename = ("entrylist_" + datetime.now().strftime("%Y%m%d-%H%M%S") + 
-			".json")
-		with open(filename, 'w') as entrylistFile:
-			entrylistFile.write(jsonpickle.encode(newEntryList, 
-				make_refs=False, unpicklable=False))
-			entrylistFile.close()
-
-		inputJson.close()
-		sys.exit("Operation finished. New entrylist JSON file: " + filename)
-
+	if (isCsv):
+		processor = CSVProcessor(isReverse, isShuffle)
+		processor.process_csv(args[filePathArgIndex])
+	else:
+		processor = JSONProcessor(isInputEntrylist, isReverse, isShuffle)
+		processor.process_json(args[filePathArgIndex])
 
 if __name__ == "__main__":
 	main(sys.argv)

@@ -1,2 +1,4 @@
-# Ignore json files
 *.json
+*.csv
+__pycache__/
+*.pyc
