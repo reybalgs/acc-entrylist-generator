@@ -2,6 +2,8 @@
 
 A utility Python script for generating Assetto Corsa Competizione entrylists based on input JSON files, typically results, but can also work on existing entrylists.
 
+It can also handle CSV files that are modeled after each Entry in an Entrylist.
+
 ## Usage
 
 This `.py` script will pretty much work from anywhere, though it is recommended that you copy and run it in the same directory as your input JSON files, for convenience. The output files are created in the same directory the script is in.
@@ -15,6 +17,16 @@ Simply run the Python script while supplying the path of the leaderboards/result
 ```
 
 These results JSON files are always generated in your server's `results` directory if you use the  `"dumpLeaderboards": 1` option in your server's `settings.json` file, as shown [in this guide](https://www.acc-wiki.info/wiki/Server_Configuration#Result_Files).
+
+### Generate entrylist using CSV file
+
+Add the `-c` flag to the script to let it know that you are reading a CSV:
+
+```
+./acc-entrylist-gen.py -c <your_csv_file>.csv
+```
+
+The CSV's columns has to follow the structure of each entry object in [this guide](https://www.acc-wiki.info/wiki/Server_Configuration#entrylist.json). Currently, you may only have one driver, with driver columns like `firstName` and `lastName` inside each column, so it's practically one driver per car.
 
 ### Reading an existing entrylist
 
